@@ -79,22 +79,34 @@ class Interface_Handler: # class to create all interfaces
 
         # logout ##########
         view_file_frame = Frame(root,width=180,height=80,bg='lightgrey')
+        view_file_button = Button(root,width=22,height=4,text="view files")
         view_file_frame.place(x=10,y=10)
+        view_file_button.place(x=18,y=15)# x=x+8 y=y+5
 
         new_file_frame = Frame(root,width=180,height=80,bg='lightgrey')
+        new_file_button = Button(root,width=22,height=4,text="new file")
         new_file_frame.place(x=10,y=100) # +90
+        new_file_button.place(x=18,y=105)
 
         edit_file_frame = Frame(root,width=180,height=80,bg='lightgrey')
+        edit_file_button = Button(root,width=22,height=4,text="edit files")
         edit_file_frame.place(x=10,y=190) # +90
+        edit_file_button.place(x=18,y=195)
 
         delete_file_frame = Frame(root,width=180,height=80,bg='lightgrey')
+        delete_file_button = Button(root,width=22,height=4,text="delete files")
         delete_file_frame.place(x=10,y=280) # +90
+        delete_file_button.place(x=18,y=285)
 
         admin_frame = Frame(root,width=180,height=80,bg='lightgrey')
+        admin_button = Button(root,width=22,height=4,text="admin")
         admin_frame.place(x=10,y=370)
+        admin_button.place(x=18,y=375)
         
         logout_frame = Frame(root,width=180,height=130,bg='grey')
+        logout_button = Button(root,width=22,height=7,text="logout")
         logout_frame.place(x=10,y=460)
+        logout_button.place(x=18,y=467)
         ########
 
         sidemenu_border = Frame(root,width=5,height=600,bg='black')
