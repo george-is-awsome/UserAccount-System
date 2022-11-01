@@ -1,11 +1,16 @@
 from tkinter import *
+import tkinter.font as font
 import os
 from time import sleep 
 
 global directory
 global account_directory
+global data_directory
 directory = os.getcwd() # gets directory of python file using the os library
 account_directory = directory + "\\Accounts"
+data_directory = directory + "\\data"
+
+#print("directory : "+str(directory)+"\naccount directory : "+str(account_directory))  # DEBUG
 # Interface Classes
 
 ###################################################################################################################################################
@@ -13,7 +18,9 @@ account_directory = directory + "\\Accounts"
 class Interface_Handler: # class to create all interfaces
     def __init__(self): # Window_Present options 1 - 3 to create diffrent windows
         self.name = self
-        self.Create_Login_Window()
+        self.username = ''
+        #self.Create_Login_Window()
+        self.Create_Main_Window('user') # DEBUG
 
     ######################################################################################
 
@@ -62,7 +69,9 @@ class Interface_Handler: # class to create all interfaces
     ######################################################################################
 
     def Create_Main_Window(self,username):
+        self.username = username
         self.root = Tk()
+        self.file_handler = File_Handler()
         root = self.root # create local scope
             
         root.title(str(username))
@@ -79,12 +88,12 @@ class Interface_Handler: # class to create all interfaces
 
         # logout ##########
         view_file_frame = Frame(root,width=180,height=80,bg='lightgrey')
-        view_file_button = Button(root,width=22,height=4,text="view files")
+        view_file_button = Button(root,width=22,height=4,text="view files",command=self.view_files)
         view_file_frame.place(x=10,y=10)
         view_file_button.place(x=18,y=15)# x=x+8 y=y+5
 
         new_file_frame = Frame(root,width=180,height=80,bg='lightgrey')
-        new_file_button = Button(root,width=22,height=4,text="new file")
+        new_file_button = Button(root,width=22,height=4,text="new file",command=self.new_file)
         new_file_frame.place(x=10,y=100) # +90
         new_file_button.place(x=18,y=105)
 
@@ -94,25 +103,121 @@ class Interface_Handler: # class to create all interfaces
         edit_file_button.place(x=18,y=195)
 
         delete_file_frame = Frame(root,width=180,height=80,bg='lightgrey')
-        delete_file_button = Button(root,width=22,height=4,text="delete files")
+        delete_file_button = Button(root,width=22,height=4,text="delete files",command=self.delete_files)
         delete_file_frame.place(x=10,y=280) # +90
         delete_file_button.place(x=18,y=285)
 
         admin_frame = Frame(root,width=180,height=80,bg='lightgrey')
-        admin_button = Button(root,width=22,height=4,text="admin")
+        admin_button = Button(root,width=22,height=4,text="admin",command=self.admin_menu)
         admin_frame.place(x=10,y=370)
         admin_button.place(x=18,y=375)
         
         logout_frame = Frame(root,width=180,height=130,bg='grey')
-        logout_button = Button(root,width=22,height=7,text="logout")
+        logout_button = Button(root,width=22,height=7,text="logout",command=self.logout)
         logout_frame.place(x=10,y=460)
         logout_button.place(x=18,y=467)
         ########
 
-        sidemenu_border = Frame(root,width=5,height=600,bg='black')
-        sidemenu_border.place(x=200,y=0)
+        sidemenu_border_left = Frame(root,width=5,height=600,bg='black')
+        sidemenu_border_left.place(x=200,y=0)# 520 px for main display # 5/10px border - width 510/500px
+
+
+        main_display_frame = Frame(root,width=500,height=590,bg='grey')
+        main_display_frame.place(x=212,y=5)
+        self.main_display_text = Label(root,width=69,height=38,bg='lightgrey',text="Hello World!",anchor=NW,justify=LEFT,wraplength=65) # Might be able to turn this into a class in the future 
+        self.main_display_text.place(x=218,y=12)
+
+        fileview_border_right = Frame(root,width=5,height=600,bg='black')
+        fileview_border_right.place(x=720,y=0)
+
+        pageup_button = Button(root,width=8,height=12,text="Page Up",bg='lightgrey')
+        pageup_button.place(x=728,y=80)
+
+        pagedown_button = Button(root,width=8,height=12,text="Page Down",bg='lightgrey')
+        pagedown_button.place(x=728,y=320)
 
     ######################################################################################
+
+    def logout(self):
+        #print("logout : logout function executed") # DEBUG
+        self.root.destroy()
+        #self.Create_Login_Window()
+        exit() # DEBUG
+
+    ######################################################################################
+
+    def view_files(self):
+        local_root = Tk()
+        local_root.title("Select File")
+        local_root.geometry("350x400")
+        basic_font =font.Font(size=32) #create font object to change the font size
+        
+        instruction_label = Label(local_root,text="select a file",bd=10)
+        instruction_label['font'] = basic_font
+        instruction_label.pack()
+
+        files = self.file_handler.get_user_files(self.username) # returns string array of all files assosiated with the account
+        self.listbox=Listbox(local_root,selectmode='single',width=30,bg='lightgrey') # raises the scope of this variable so it can be used throughout the class
+        listbox = self.listbox
+        listbox['font'] = basic_font # applies the font to the listbox object 
+        for i in range(len(files)):
+            print(str(i)+" : "+str(files[i]))
+            listbox.insert(i+1,str(files[i]))
+        listbox.place(x=40,y=50)
+
+        border = Frame(local_root,width=400,height=5,bg='black')
+        border.place(x=0,y=250)
+
+        button_frame = Frame(local_root,width=330,height=130,bg='lightgrey')
+        button_frame.place(x=10,y=260)
+
+        submit_button = Button(local_root,text="View File",width=41,height=6,command=self.view_file_submited)
+        submit_button.place(x=25,y=275)
+
+    ######################################################################################
+
+    def view_file_submited(self):
+        entry = self.listbox.curselection() # stores string of file selected
+        if(len(entry) > 0): # checks a file has been selected
+            print("entry : "+str(self.listbox.get(entry)))
+            selected_file= self.listbox.get(entry)
+            if(self.file_handler.check_file_exists(selected_file,data_directory)): # checks the file exist to avoid errors
+                data_file = open(data_directory+'\\'+selected_file)
+                data = data_file.read()
+                data_file.close()
+                self.main_display_text.destroy()
+                self.main_display_text = Label(self.root,width=69,height=38,bg='lightgrey',text=data,anchor=NW,justify=LEFT,wraplength=480)
+                self.main_display_text.place(x=218,y=12)
+                
+
+    ######################################################################################
+        
+
+
+    def new_file(self):
+        local_root=Tk()
+
+        local_root.title("new file")
+        local_root.geometry("250x150")
+
+    ######################################################################################
+
+    def delete_files(self):
+        local_root = Tk()
+
+        local_root.title("delete File")
+        local_root.geometry("400x600")
+
+    ######################################################################################
+
+    def admin_menu(self):
+        local_root = Tk()
+
+        local_root.title("admin menu")
+        local_root.geometry("400x600")
+    
+    ######################################################################################
+
 
 ###################################################################################################################################################
 
@@ -120,7 +225,7 @@ class Interface_Handler: # class to create all interfaces
 class File_Handler: # class to handle how to read and write to files - deosnt need to be a class but encryp/decryp can be used automaticly on read and write
     def __init__(self):
         self.accounts_directory = directory + "\\accounts" # standardised location to store login details
-
+        self.file_start_line_number = 5
         account_file_exists = self.check_file_exists("Accounts",directory,folder=1) # 1 = searching for directory not a regular file
         if(account_file_exists == False): # create an account file if one has not been found at the standard directory
             print("File Handler : Account Directory not found, creating new Account Directory--")
@@ -173,13 +278,37 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             #print("get_password : username : "+str(username)+"\nget_password : account_directory : "+str(account_directory)) # DEBUG
             user_file = open(account_directory+'\\'+username,'r') # opens username data file
             user_password = user_file.readline()
+            print("get password : "+str(user_password)) # DEBUG
             #print("get_password : user_password : " + str(user_password)) # DEBUG
             user_file.close()
             return user_password
             
         else:
             raise ValueError("ERROR : No Account Found With The Username : " + str(username))
+
+    ######################################################################################
+
+    def get_user_files(self,username):
+        files = []
+        user_file = open(account_directory+"\\"+username+'.txt','r')
+        line_count = 1
+        end_of_file = False
+        while end_of_file == False:
+            file = user_file.readline()
+            #print(str(line_count)+" : "+str(file)) # DEBUG
+            if(line_count > self.file_start_line_number):
+                if len(file) > 0:
+                    file = file.replace('\n','')
+                    files.append(file)
+                    line_count += 1
+                else: end_of_file = True
+            else: line_count += 1
+        user_file.close()
         
+        for i in range(len(files)):
+            print("user files - "+str (files[i-1]+" | length - ")+str(len(files[i-1]))) # DEBUG
+        return files
+            
 
     ######################################################################################
 
@@ -214,9 +343,11 @@ def Authorisation(username, password):
 
     #if(username == placeholder_username): username_valid = True # checks recived password with the password it had and username
     # username check not valid as it is done while getting the user password - if username is not valid auth returns false
-    # password checked with will only be with the password of the username so it stays secure 
-    if(password == user_password): password_valid = True
+    # password checked with will only be with the password of the username so it stays secure
 
+    
+    if(int(password) == int(user_password)): password_valid = True
+    print("password : "+str(user_password)+"\nentered password : "+str(password),"\npassword valid : "+str(password_valid)) # DEBUG
     if(password_valid): return True
     else: return False
     
@@ -227,13 +358,10 @@ def Authorisation(username, password):
 
 def main():
     interface = Interface_Handler()
-    interface2 = Interface_Handler()
 
 ###################################################################################################################################################
 
 
 if __name__ == "__main__":
     main()
-    input()
-
-
+    #input()

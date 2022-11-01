@@ -4,7 +4,7 @@ line 1 = password
 line 2 = n/a
 line 3 = n/a
 line 4 = n/a
-line 5 = n/a
+line 5 = No of files
 
 line 6 onward = files assosiated with account 
 
@@ -14,6 +14,6 @@ USER.TXT
 2 -
 3 -
 4 -
-5 -
+5 - 2
 6 - text.txt
 7 - test.txt
