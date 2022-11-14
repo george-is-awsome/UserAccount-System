@@ -2,11 +2,12 @@ from tkinter import *
 import tkinter.font as font
 import os
 from time import sleep 
-
+print("Hello World!")
 global directory
 global account_directory
 global data_directory
 directory = os.getcwd() # gets directory of python file using the os library
+if (directory.endswith('prot1') == False): directory = directory + '\\prot1'
 account_directory = directory + "\\Accounts"
 data_directory = directory + "\\data"
 
@@ -136,6 +137,8 @@ class Interface_Handler: # class to create all interfaces
         pagedown_button = Button(root,width=8,height=12,text="Page Down",bg='lightgrey')
         pagedown_button.place(x=728,y=320)
 
+        root.mainloop()
+
     ######################################################################################
 
     def logout(self):
@@ -215,6 +218,12 @@ class Interface_Handler: # class to create all interfaces
 
         local_root.title("admin menu")
         local_root.geometry("400x600")
+
+        new_user_button = Button(local_root, text='create new user')
+        new_user_button.place(x=20,y=10)
+
+        delete_user_button = Button(local_root, text='delete user')
+        delete_user_button.place(x=220,y=10)
     
     ######################################################################################
 
@@ -354,14 +363,22 @@ def Authorisation(username, password):
 
 ###################################################################################################################################################
 
+def start():
+    interface = Interface_Handler()
 
 
 def main():
-    interface = Interface_Handler()
+
+    main_root = Tk()
+    main_root.geometry('100x100')
+    main_root.title("Main")
+    start_button = Button(main_root, text='start',width=5,height=2,command=start)
+    start_button.place(x=35,y=30)
+    main_root.mainloop()
+    
 
 ###################################################################################################################################################
 
 
 if __name__ == "__main__":
     main()
-    #input()
