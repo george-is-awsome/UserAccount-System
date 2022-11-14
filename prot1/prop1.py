@@ -11,19 +11,16 @@ if (directory.endswith('prot1') == False): directory = directory + '\\prot1'
 account_directory = directory + "\\Accounts"
 data_directory = directory + "\\data"
 
-#print("directory : "+str(directory)+"\naccount directory : "+str(account_directory))  # DEBUG
+print("directory : "+str(directory)+"\naccount directory : "+str(account_directory))  # DEBUG
 # Interface Classes
 
-###################################################################################################################################################
 
 class Interface_Handler: # class to create all interfaces
     def __init__(self): # Window_Present options 1 - 3 to create diffrent windows
         self.name = self
         self.username = ''
-        #self.Create_Login_Window()
-        self.Create_Main_Window('user') # DEBUG
-
-    ######################################################################################
+        self.Create_Login_Window()
+        #self.Create_Main_Window('user') # DEBUG
 
     def Create_Login_Window(self):
         self.root = Tk()
@@ -53,9 +50,7 @@ class Interface_Handler: # class to create all interfaces
         username_label.place(x=10,y=29)
         password_label.place(x=10,y=69)
 
-        submit_button.place(x=150,y=90)
-
-    ######################################################################################
+        submit_button.place(x=150,y=90)    
 
     def entry_auth(self): # collects data from Entry Objects 
         username_input = self.username_input.get() # uses built in get() function to return the string entered on the object 
@@ -66,8 +61,6 @@ class Interface_Handler: # class to create all interfaces
         else:
             self.root.destroy()
             self.Create_Main_Window(username_input)
-
-    ######################################################################################
 
     def Create_Main_Window(self,username):
         self.username = username
@@ -139,15 +132,11 @@ class Interface_Handler: # class to create all interfaces
 
         root.mainloop()
 
-    ######################################################################################
-
     def logout(self):
         #print("logout : logout function executed") # DEBUG
         self.root.destroy()
         #self.Create_Login_Window()
         exit() # DEBUG
-
-    ######################################################################################
 
     def view_files(self):
         local_root = Tk()
@@ -177,12 +166,10 @@ class Interface_Handler: # class to create all interfaces
         submit_button = Button(local_root,text="View File",width=41,height=6,command=self.view_file_submited)
         submit_button.place(x=25,y=275)
 
-    ######################################################################################
-
     def view_file_submited(self):
         entry = self.listbox.curselection() # stores string of file selected
         if(len(entry) > 0): # checks a file has been selected
-            print("entry : "+str(self.listbox.get(entry)))
+            print("entry : "+str(self.listbox.get(entry))) # list box to show all the files 
             selected_file= self.listbox.get(entry)
             if(self.file_handler.check_file_exists(selected_file,data_directory)): # checks the file exist to avoid errors
                 data_file = open(data_directory+'\\'+selected_file)
@@ -192,18 +179,11 @@ class Interface_Handler: # class to create all interfaces
                 self.main_display_text = Label(self.root,width=69,height=38,bg='lightgrey',text=data,anchor=NW,justify=LEFT,wraplength=480)
                 self.main_display_text.place(x=218,y=12)
                 
-
-    ######################################################################################
-        
-
-
     def new_file(self):
         local_root=Tk()
 
         local_root.title("new file")
         local_root.geometry("250x150")
-
-    ######################################################################################
 
     def delete_files(self):
         local_root = Tk()
@@ -211,25 +191,58 @@ class Interface_Handler: # class to create all interfaces
         local_root.title("delete File")
         local_root.geometry("400x600")
 
-    ######################################################################################
-
-    def admin_menu(self):
+    def admin_menu(self): # admin unitlie menu - need to add auth to use 
         local_root = Tk()
 
         local_root.title("admin menu")
         local_root.geometry("400x600")
 
-        new_user_button = Button(local_root, text='create new user')
+        new_user_button = Button(local_root, text='create new user',command=self.new_user) # starts function to create new user - includes all files included in the account#
+        self.new_user_name_entry = Entry(local_root,width=12)
+        self.new_user_password = Entry(local_root,width=12)
+        self.new_user_permission_level = Entry(local_root,width=2)
+
+        new_user_name_label = Label(local_root,text='Username')
+        new_user_pswd_label = Label(local_root,text='Password')
+        new_user_perm_label = Label(local_root,text='Permission Level')
+        self.error_label = Label(local_root, text='Details Invalid',fg='red')
+        self.account_created_label = Label(local_root, text='Account Created',fg='green')
+
+
+        new_user_name_label.place(x=100,y=38)
+        new_user_pswd_label.place(x=100,y=58)
+        new_user_perm_label.place(x=40,y=80)
+        self.new_user_name_entry.place(x=20,y=40)
+        self.new_user_password.place(x=20,y=60)
+        self.new_user_permission_level.place(x=20,y=80)
         new_user_button.place(x=20,y=10)
 
-        delete_user_button = Button(local_root, text='delete user')
+        delete_user_button = Button(local_root, text='delete user') # delete a user account
         delete_user_button.place(x=220,y=10)
+
+        ad_read_button = Button(local_root, text='admin view file') # view every file within the system not just files linked to the selected account
+        ad_read_button.place(x=20,y=120)
+
+        ad_delete_button = Button(local_root, text='admin delete file') # delete any file within the system
+        ad_delete_button.place(x=220,y=120)
+
+    def new_user(self):
+        name_entry = self.new_user_name_entry.get()
+        perm_entry = self.new_user_permission_level.get()
+        pswd_entry = self.new_user_password.get() # gets variable values from all entry entities
+        #self.file_handler.create_new_user(name_entry,perm_entry)
+
+        if(name_entry == '' or pswd_entry == '' or perm_entry == ''): # checks for null values to avoid errors and accidental misclicks
+            self.error_label.place(x=20,y=99)       
+        else:
+            if (self.file_handler.create_new_user(name_entry,pswd_entry,perm_entry)):
+                self.account_created_label.place(x=20,y=99)
+            else: 
+                self.error_label.place(x=20,y=99)
+
+
+        
     
-    ######################################################################################
-
-
-###################################################################################################################################################
-
 
 class File_Handler: # class to handle how to read and write to files - deosnt need to be a class but encryp/decryp can be used automaticly on read and write
     def __init__(self):
@@ -242,10 +255,6 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             except ValueError as e:
                 print(e)
             print("File Handler : Account Directory Created Successfully")
-
-        
-
-    ######################################################################################
 
     def check_file_exists(self,file_name,root_directory, **kwargs): # all round method to check existance of files 
         # file or folder = (0/1) 0 = file 1 = folder
@@ -261,10 +270,6 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
         elif (file_exists and file_is_directory and file_or_folder==1): return True # return true if file exists and is searching for a directory (folder)
         else: return False # if desired file is not found
 
-        
-
-    ######################################################################################
-
     def create_accounts_file(self): # used for new directory area to create a new account data directory if one deonst already exist
         if(self.check_file_exists("Accounts",directory)): # checks if there is already a file called "Accounts" to avoid errors
             raise ValueError("ERROR : A File Called Accounts Already Exists in\n " + directory)
@@ -278,14 +283,11 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
 
         return True # represents the successfull creation of the account directory
 
-    ######################################################################################
-    
     def get_password(self,username): # get password from user data file
-        username = username+'.txt'
         #print("get_password : username : "+str(username)+"\nget_password : account_directory : "+str(account_directory)) # DEBUG
-        if(self.check_file_exists(username,account_directory)): # confirms the given username has an account (file)
+        if(self.check_file_exists(username,account_directory,file_or_folder=1)): # confirms the given username has an account (file)
             #print("get_password : username : "+str(username)+"\nget_password : account_directory : "+str(account_directory)) # DEBUG
-            user_file = open(account_directory+'\\'+username,'r') # opens username data file
+            user_file = open(account_directory+'\\'+username+'\\index.txt','r') # opens username data file
             user_password = user_file.readline()
             print("get password : "+str(user_password)) # DEBUG
             #print("get_password : user_password : " + str(user_password)) # DEBUG
@@ -295,17 +297,15 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
         else:
             raise ValueError("ERROR : No Account Found With The Username : " + str(username))
 
-    ######################################################################################
-
     def get_user_files(self,username):
         files = []
-        user_file = open(account_directory+"\\"+username+'.txt','r')
+        user_file = open(account_directory+"\\"+username+'\\index.txt','r') # opens account index which lists the files linked to the account (avoids having to search through the data folder listing all the files found)
         line_count = 1
         end_of_file = False
         while end_of_file == False:
             file = user_file.readline()
             #print(str(line_count)+" : "+str(file)) # DEBUG
-            if(line_count > self.file_start_line_number):
+            if(line_count > self.file_start_line_number): # loop to skip non data lines in the index to then read the file data and store the names in an array
                 if len(file) > 0:
                     file = file.replace('\n','')
                     files.append(file)
@@ -318,9 +318,43 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             print("user files - "+str (files[i-1]+" | length - ")+str(len(files[i-1]))) # DEBUG
         return files
             
+    def create_new_user(self,username,password,permission_level):
+        # permission_level = 0 - standard | 1 = admin
+        # create user directory
+        # create index.txt
+        # create data directory
+        # create activity directory
+        # config index.txt
+            # pswd
+        
+        try: # statement to create a directory in accounts for the new user
+            path = account_directory + '\\' + username
+            os.mkdir(path)
+        except:
+            print('Create New User : Unable to create new directory for -username-')
+            return False
 
-    ######################################################################################
+        active_directory = account_directory + '\\' + username # variable with path to the new directory for QOL 
 
+        index_file = open(active_directory+'\\index.txt','w') # write all data to the index.txt file
+        index_file.write(str(password))
+        index_file.write(str(permission_level))
+        index_file.writelines('\n\n\n')
+        index_file.write('0')
+
+        try: # creates the data and activity dir - Try loop to avoid error incase files already exists 
+            data_path = active_directory + '\\data'
+            activity_path = active_directory + '\\activity'
+
+            os.mkdir(data_path)
+            os.mkdir(activity_path)
+        except:
+            print('Create New User : Unable to create new directory for -data & activity-')
+            return False
+
+        return True
+
+    """        
     # def get files
 
     # def open file
@@ -332,9 +366,8 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
     # def delect account
 
     # def add account
-    
-        
-###################################################################################################################################################
+    """
+
 
 def Authorisation(username, password):
     #placeholder_username = "user" # placeholder to use while the file handler class is not functioning
@@ -359,13 +392,9 @@ def Authorisation(username, password):
     print("password : "+str(user_password)+"\nentered password : "+str(password),"\npassword valid : "+str(password_valid)) # DEBUG
     if(password_valid): return True
     else: return False
-    
-
-###################################################################################################################################################
 
 def start():
     interface = Interface_Handler()
-
 
 def main():
 
@@ -375,10 +404,6 @@ def main():
     start_button = Button(main_root, text='start',width=5,height=2,command=start)
     start_button.place(x=35,y=30)
     main_root.mainloop()
-    
-
-###################################################################################################################################################
-
 
 if __name__ == "__main__":
     main()
