@@ -1,0 +1,11 @@
+DIR - Account Name
+	data.txt - 
+		pswd
+		perm level
+		files
+	DIR - Data
+		text.txt
+		text2.txt
+	activity.txt - 
+		data.txt
+			history

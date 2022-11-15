@@ -1,7 +1,11 @@
 username = file name
 
 line 1 = password
+<<<<<<< HEAD
 line 2 = n/a
+=======
+line 2 = perm
+>>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
 line 3 = n/a
 line 4 = n/a
 line 5 = No of files
