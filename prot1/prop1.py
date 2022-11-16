@@ -2,28 +2,34 @@ from tkinter import *
 import tkinter.font as font
 import os
 from time import sleep 
-print("Hello World!")
-global directory
-global account_directory
-global data_directory
-directory = os.getcwd() # gets directory of python file using the os library
-<<<<<<< HEAD
-if (directory.endswith('prot1') == False):
-    directory = directory + '\\prot1'
-=======
-if (directory.endswith('prot1') == False): directory = directory + '\\prot1'
->>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
-account_directory = directory + "\\Accounts"
-data_directory = account_directory + "\\data"
 
-print("directory : "+str(directory)+"\naccount directory : "+str(account_directory))  # DEBUG
+"""
+Problems 
+- new file function adds file name to index if the file has successfuly been created or not so when opening a file you are given the option to open files that do not exist
+- fix new file function - deosnt update index correctly skips line and doenst update the counter 
+"""
+
+"""
+ideas
+- add external databases for more efficency
+- add a sync file button to clear all files from index.txt that no longer exist
+"""
+
+"""
+todo
+- finish encryption system
+- 
+"""
+
+
+
 # Interface Classes
-
 
 class Interface_Handler: # class to create all interfaces
     def __init__(self): # Window_Present options 1 - 3 to create diffrent windows
         self.name = self
         self.username = ''
+        self.local_directory = ''
         self.Create_Login_Window()
         #self.Create_Main_Window('user') # DEBUG
 
@@ -69,6 +75,7 @@ class Interface_Handler: # class to create all interfaces
 
     def Create_Main_Window(self,username):
         self.username = username
+        self.local_directory = account_directory + '\\' + self.username
         self.root = Tk()
         self.file_handler = File_Handler()
         root = self.root # create local scope
@@ -136,11 +143,6 @@ class Interface_Handler: # class to create all interfaces
         pagedown_button.place(x=728,y=320)
 
         root.mainloop()
-<<<<<<< HEAD
-
-    ######################################################################################
-=======
->>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
 
     def logout(self):
         #print("logout : logout function executed") # DEBUG
@@ -178,6 +180,7 @@ class Interface_Handler: # class to create all interfaces
 
     def view_file_submited(self):
         entry = self.listbox.curselection() # stores string of file selected
+        data_directory = self.local_directory+'\\data'
         if(len(entry) > 0): # checks a file has been selected
             print("entry : "+str(self.listbox.get(entry))) # list box to show all the files 
             selected_file= self.listbox.get(entry)
@@ -204,15 +207,11 @@ class Interface_Handler: # class to create all interfaces
         submit = Button(local_root,width=5,text='submit',height=1,command=self.create_new_file)
         submit.place(x=200,y=28)
 
-
     def create_new_file(self):
         file_name = self.file_name_input.get()
-        new_file = open(data_directory + '\\' + file_name+'.txt','a')
+        new_file = open(account_directory+'\\'+self.username+'\\data\\'+file_name+'.txt','a') # creates a new file in the data directory of the users file
         new_file.close()
-        self.file_handler.add_new_file(self.username,file_name)
-
-
-
+        self.file_handler.add_new_file_to_index(self.username,file_name) # adds the new file to the index of the user
 
     def delete_files(self):
         local_root = Tk()
@@ -293,7 +292,7 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
         file_exists = os.path.exists(root_directory+"\\"+file_name) # uses os to check if the selected file exists in a given directory
         file_is_directory = os.path.isdir(root_directory+"\\"+file_name) # bool to store if the selected file is a regular file or a directory
 
-        #print("file_exists :"+str(file_exists)+"\nfile_is_directory :"+str(file_is_directory)+"\nfile_or_folder : " + str(file_or_folder)) # DEBUG
+        print("file_exists :"+str(file_exists)+"\nfile_is_directory :"+str(file_is_directory)+"\nfile_or_folder : " + str(file_or_folder)) # DEBUG
 
         if(file_exists and file_or_folder==0): return True # return true if file exists and is searching for a regular file
         elif (file_exists and file_is_directory and file_or_folder==1): return True # return true if file exists and is searching for a directory (folder)
@@ -347,9 +346,8 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             print("user files - "+str (files[i-1]+" | length - ")+str(len(files[i-1]))) # DEBUG
         return files
             
-<<<<<<< HEAD
-    def add_new_file(self,username,filename):
-        account_file = open(account_directory + '\\' + username+'.txt','r')
+    def add_new_file_to_index(self,username,filename):
+        account_file = open(account_directory + '\\' + username +'\\index.txt','r')
         file = []
         for i in range(4): 
             line = account_file.readline()
@@ -362,15 +360,11 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             file.append(line)
         account_file.close()
 
-        account_file = open(account_directory + '\\' + username+'.txt','a')
+        account_file = open(account_directory + '\\' + username+'\\index.txt','a')
         #for i in range(len(file)): account_file.write(file[i])
         account_file.write('\n'+filename)
         account_file.close
 
-
-        
-    ######################################################################################
-=======
     def create_new_user(self,username,password,permission_level):
         # permission_level = 0 - standard | 1 = admin
         # create user directory
@@ -388,7 +382,6 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             return False
 
         active_directory = account_directory + '\\' + username # variable with path to the new directory for QOL 
->>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
 
         index_file = open(active_directory+'\\index.txt','w') # write all data to the index.txt file
         index_file.write(str(password))
@@ -407,6 +400,81 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             return False
 
         return True
+
+    def encrypt(self,decrypted_string): # encrypt any value given to it
+        for i in range(len(decrypted_string)):
+            character = decrypted_string[i]
+            
+
+
+    def decrypt(self,encrypted_string): # decrypt any value given to it
+        pass
+
+
+    def encrypt_table(self,encrypt_or_decrypt,character):
+        # this could be turned into an external database
+        # true = encrypt 
+        # false = decrypt
+        """  number conversion
+        0 = 9
+        1 = 8
+        2 = 7
+        3 = 6
+        4 = 5
+        5 = 7
+        3 = 8
+        2 = 9
+        1 = 0
+        """
+        """ character conversion
+        a=11
+        b=12
+        c=13
+        d=14
+        e=15
+        f=16
+        g=17
+        h=18
+        i=19
+        j=20
+        k=21
+        l=22
+        m=23
+        n=24
+        o=25
+        p=26
+        q=27
+        r=28
+        s=29
+        t=30
+        u=31
+        v=32
+        w=33
+        x=34
+        y=35
+        z=36
+        """
+
+        if(encrypt_or_decrypt == True): # encryption
+            character_array = [11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,45,35,36]
+            number_array = [9,8,7,6,5,4,3,2,1,0]
+            unciode_start_value = 97 # value to take away from unciode values to match index of character arrays
+
+            try: character = character_array[ord(character-unciode_start_value)] # conversion for string - if character is an int an error will happen escaping to the except which will run the int conversion
+            except:
+                try: character = number_array[character]
+                except: 
+                    print("Encrypt table : Unable to encrypt character") 
+                    raise ValueError("Encrypt Table : unable to encrypt character")
+
+        if(encrypt_or_decrypt == False): # decryption,
+            character_array = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+            
+        
+
+
+        return character
+
 
     """        
     # def get files
@@ -447,19 +515,17 @@ def Authorisation(username, password):
     if(password_valid): return True
     else: return False
 
-<<<<<<< HEAD
-###################################################################################################################################################
-
-
-
-def main():
-    print("Hello World")
-=======
 def start():
->>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
     interface = Interface_Handler()
 
 def main():
+
+    global directory
+    global account_directory
+
+    directory = os.getcwd() # gets directory of python file using the os library
+    if (directory.endswith('prot1') == False): directory = directory + '\\prot1'
+    account_directory = directory + "\\Accounts"
 
     main_root = Tk()
     main_root.geometry('100x100')
@@ -469,5 +535,5 @@ def main():
     main_root.mainloop()
 
 if __name__ == "__main__":
-    print("Hello World")
+    print("Hello World") # DEBUG
     main()
