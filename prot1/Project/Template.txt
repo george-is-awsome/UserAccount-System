@@ -1,7 +1,7 @@
-username = file name
+
 
 line 1 = password
-line 2 = perm
+line 2 = n/a
 line 3 = n/a
 line 4 = n/a
 line 5 = No of files
