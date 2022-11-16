@@ -1,7 +1,15 @@
 
 
 line 1 = password
+<<<<<<< HEAD
 line 2 = n/a
+=======
+<<<<<<< HEAD
+line 2 = n/a
+=======
+line 2 = perm
+>>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
+>>>>>>> 8818bc0c644dcb1943a82e298ea3a3caf48b775b
 line 3 = n/a
 line 4 = n/a
 line 5 = No of files

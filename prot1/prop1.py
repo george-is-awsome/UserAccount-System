@@ -7,9 +7,14 @@ global directory
 global account_directory
 global data_directory
 directory = os.getcwd() # gets directory of python file using the os library
+<<<<<<< HEAD
+if (directory.endswith('prot1') == False):
+    directory = directory + '\\prot1'
+=======
 if (directory.endswith('prot1') == False): directory = directory + '\\prot1'
+>>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
 account_directory = directory + "\\Accounts"
-data_directory = directory + "\\data"
+data_directory = account_directory + "\\data"
 
 print("directory : "+str(directory)+"\naccount directory : "+str(account_directory))  # DEBUG
 # Interface Classes
@@ -131,6 +136,11 @@ class Interface_Handler: # class to create all interfaces
         pagedown_button.place(x=728,y=320)
 
         root.mainloop()
+<<<<<<< HEAD
+
+    ######################################################################################
+=======
+>>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
 
     def logout(self):
         #print("logout : logout function executed") # DEBUG
@@ -183,7 +193,26 @@ class Interface_Handler: # class to create all interfaces
         local_root=Tk()
 
         local_root.title("new file")
-        local_root.geometry("250x150")
+        local_root.geometry("250x70")
+
+        enter_label = Label(local_root,text='Enter File Name')
+        enter_label.place(x=5,y=8)
+
+        self.file_name_input = Entry(local_root,width=30)
+        self.file_name_input.place(x=5,y=30)
+
+        submit = Button(local_root,width=5,text='submit',height=1,command=self.create_new_file)
+        submit.place(x=200,y=28)
+
+
+    def create_new_file(self):
+        file_name = self.file_name_input.get()
+        new_file = open(data_directory + '\\' + file_name+'.txt','a')
+        new_file.close()
+        self.file_handler.add_new_file(self.username,file_name)
+
+
+
 
     def delete_files(self):
         local_root = Tk()
@@ -318,6 +347,30 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             print("user files - "+str (files[i-1]+" | length - ")+str(len(files[i-1]))) # DEBUG
         return files
             
+<<<<<<< HEAD
+    def add_new_file(self,username,filename):
+        account_file = open(account_directory + '\\' + username+'.txt','r')
+        file = []
+        for i in range(4): 
+            line = account_file.readline()
+            file.append(line)
+        next_index=account_file.readline()
+        file.append(next_index)
+        next_index = next_index.replace('\\n','')
+        for i in range(int(next_index)):
+            line = account_file.readline()
+            file.append(line)
+        account_file.close()
+
+        account_file = open(account_directory + '\\' + username+'.txt','a')
+        #for i in range(len(file)): account_file.write(file[i])
+        account_file.write('\n'+filename)
+        account_file.close
+
+
+        
+    ######################################################################################
+=======
     def create_new_user(self,username,password,permission_level):
         # permission_level = 0 - standard | 1 = admin
         # create user directory
@@ -335,6 +388,7 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
             return False
 
         active_directory = account_directory + '\\' + username # variable with path to the new directory for QOL 
+>>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
 
         index_file = open(active_directory+'\\index.txt','w') # write all data to the index.txt file
         index_file.write(str(password))
@@ -393,7 +447,16 @@ def Authorisation(username, password):
     if(password_valid): return True
     else: return False
 
+<<<<<<< HEAD
+###################################################################################################################################################
+
+
+
+def main():
+    print("Hello World")
+=======
 def start():
+>>>>>>> e1244663491f5e57554139214d0021cdd2f1c239
     interface = Interface_Handler()
 
 def main():
@@ -406,4 +469,5 @@ def main():
     main_root.mainloop()
 
 if __name__ == "__main__":
+    print("Hello World")
     main()
