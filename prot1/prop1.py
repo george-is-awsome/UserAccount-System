@@ -183,7 +183,43 @@ class Interface_Handler: # class to create all interfaces
         local_root=Tk()
 
         local_root.title("new file")
-        local_root.geometry("250x150")
+        local_root.geometry("250x70")
+
+        enter_label = Label(local_root,text='Enter File Name')
+        enter_label.place(x=5,y=8)
+
+        self.file_name_input = Entry(local_root,width=30)
+        self.file_name_input.place(x=5,y=30)
+
+        submit = Button(local_root,width=5,text='submit',height=1,command=self.create_new_file)
+        submit.place(x=200,y=28)
+
+
+    def add_new_file(self,username,filename):
+        account_file = open(account_directory + '\\' + username+'.txt','r')
+        file = []
+        for i in range(4): 
+            line = account_file.readline()
+            file.append(line)
+        next_index=account_file.readline()
+        file.append(next_index)
+        next_index = next_index.replace('\\n','')
+        for i in range(int(next_index)):
+            line = account_file.readline()
+            file.append(line)
+        account_file.close()
+
+        account_file = open(account_directory + '\\' + username+'.txt','a')
+        #for i in range(len(file)): account_file.write(file[i])
+        account_file.write('\n'+filename)
+        account_file.close
+
+
+    def create_new_file(self):
+        file_name = self.file_name_input.get()
+        new_file = open(data_directory + '\\' + file_name+'.txt','a')
+        new_file.close()
+        self.file_handler.add_new_file(self.username,file_name)
 
     def delete_files(self):
         local_root = Tk()
@@ -317,6 +353,32 @@ class File_Handler: # class to handle how to read and write to files - deosnt ne
         for i in range(len(files)):
             print("user files - "+str (files[i-1]+" | length - ")+str(len(files[i-1]))) # DEBUG
         return files
+
+    def add_new_file(self,username,filename):
+        account_file = open(account_directory + '\\' + username+'.txt','r')
+        file = []
+        for i in range(4): 
+            line = account_file.readline()
+            file.append(line)
+        next_index=account_file.readline()
+        file.append(next_index)
+        next_index = next_index.replace('\\n','')
+        for i in range(int(next_index)):
+            line = account_file.readline()
+            file.append(line)
+        account_file.close()
+
+        account_file = open(account_directory + '\\' + username+'.txt','a')
+        #for i in range(len(file)): account_file.write(file[i])
+        account_file.write('\n'+filename)
+        account_file.close
+
+
+    def create_new_file(self):
+        file_name = self.file_name_input.get()
+        new_file = open(data_directory + '\\' + file_name+'.txt','a')
+        new_file.close()
+        self.file_handler.add_new_file(self.username,file_name)
             
     def create_new_user(self,username,password,permission_level):
         # permission_level = 0 - standard | 1 = admin
