@@ -401,10 +401,10 @@ def verifyFiles():
         cursor = dbCon.cursor()
 
         createTable = "CREATE TABLE userDetails (ID INTEGER PRIMARY KEY, username TEXT, password INTEGER, admin INTEGER, dateCreated TEXT)"
+        cursor.execute(createTable)
         defaultUser = "INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES ('0','user','90123','1','1/1/1')"
         cursor.execute(defaultUser)
         defaultUser = "INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES ('1','user2','90123','1','1/1/1')"
-        cursor.execute(createTable)
         cursor.execute(defaultUser)
         dbCon.commit()
         dbCon.close()
