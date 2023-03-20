@@ -70,7 +70,7 @@ class User: # main class object for a user once they log in
 
         # widget obj def
         view_file_frame = Frame(root,width=180,height=80,bg=button_frame_background_colour)
-        view_file_button = Button(root,width=22,height=4,text="view files")#,command=self.view_files,bg=button_colour)
+        view_file_button = Button(root,width=22,height=4,text="view files",command=lambda:self.view_files(root,main_display_text,main_display_colour))#,command=self.view_files,bg=button_colour)
 
         new_file_frame = Frame(root,width=180,height=80,bg=button_frame_background_colour)
         new_file_button = Button(root,width=22,height=4,text="new file",command=lambda:self.createFiles(root),bg=button_colour)
@@ -79,7 +79,7 @@ class User: # main class object for a user once they log in
         edit_file_button = Button(root,width=22,height=4,text="edit files",bg=button_colour)
 
         delete_file_frame = Frame(root,width=180,height=80,bg=button_frame_background_colour)
-        delete_file_button = Button(root,width=22,height=4,text="delete files")#,command=self.delete_files,bg=button_colour)
+        delete_file_button = Button(root,width=22,height=4,text="delete files",command=self.deleteFile)#,command=self.delete_files,bg=button_colour)
 
         admin_frame = Frame(root,width=180,height=80,bg=button_frame_background_colour)
         admin_button = Button(root,width=22,height=4,text="admin")#,command=self.admin_menu,bg=button_colour)
@@ -175,6 +175,16 @@ class User: # main class object for a user once they log in
         
         newFile = open(fileDirectory,'w+')
         newFile.close()
+
+        dbCon = sqlite3.connect(fileIndexPath)
+        cursor = dbCon.cursor()
+        cursor.execute("SELECT COUNT(*) FROM fileIndex")
+        id = cursor.fetchone()
+        id = id[0]
+        print(id)
+        cursor.execute(f"INSERT INTO fileIndex(ID, fileName, author, dateCreated) VALUES('{id}','{fileName}','{self.username}','1/1/1')")
+        dbCon.commit()
+        dbCon.close()
         #except:
         #    print("NEW FILE - Unexpected error occoured")
         #    return
@@ -183,6 +193,144 @@ class User: # main class object for a user once they log in
         outputLabel = Label(localRoot, text='File Created Successfully!', fg='green')
         outputLabel.place(x=5,y=55)
         
+    def view_files(self, root, maintext, mainDisplayColour):
+        local_root = Tk()
+        local_root.title("Select File")
+        local_root.geometry("350x400")
+        basic_font =font.Font(size=32) #create font object to change the font size
+
+        lbColour = 'lightgrey'
+        borderColour = 'black'
+        bFrameColour = 'lightgrey'
+
+        instruction_label = Label(local_root,text="select a file",bd=10)
+        instruction_label['font'] = basic_font
+        instruction_label.pack()
+        
+        #  get files - search through database collect filenames where author = userID
+        dbCon = sqlite3.connect(fileIndexPath)
+        cursor = dbCon.cursor()
+        getUserFiles = f"SELECT filename FROM fileIndex WHERE author={self.username}"
+        cursor.execute(getUserFiles)
+        files = cursor.fetchall()
+        print(files)
+
+        for i in range(len(files)): # format file names
+            file = files[i]
+            file = str(file)
+            file=file.replace('(','')
+            file=file.replace(')','')
+            file=file.replace("'",'')
+            file=file.replace(',','')
+            files[i] = str(file)
+
+        listbox=Listbox(local_root,selectmode='single',width=30,bg=lbColour)
+        listbox['font'] = basic_font # applies the font to the listbox object 
+        for i in range(len(files)): # add files to listbox
+            listbox.insert(i+1,str(files[i]))
+        listbox.place(x=40,y=50)
+
+        border = Frame(local_root,width=400,height=5,bg=borderColour)
+        border.place(x=0,y=250)
+
+        button_frame = Frame(local_root,width=330,height=130,bg=bFrameColour)
+        button_frame.place(x=10,y=260)
+
+        submit_button = Button(local_root,text="View File",width=41,height=6,command=lambda:self.view_file_submited(root,maintext,listbox,mainDisplayColour))
+        submit_button.place(x=25,y=275)
+
+    def view_file_submited(self,root,maintext,listbox,mainDisplayColour):
+        entry = listbox.curselection()
+        entry = listbox.get(entry)
+        if(len(entry) <= 0): # checks a file has been selected
+            raise ValueError("file not selected")
+            return
+        if(os.path.exists(fileDataPath+f"\\{entry}.txt")):
+            contentFile = open(fileDataPath+f"\\{entry}.txt")
+            contents = contentFile.read()
+            contentFile.close()
+            maintext.destroy()
+            maintext = Label(root,width=69,height=38,bg=mainDisplayColour,text=str(contents),anchor=NW,justify=LEFT,wraplength=65)
+            maintext.place()
+        else:
+            raise ValueError("File Deosnt exist")
+        
+    def deleteFile(self):
+        local_root = Tk()
+        local_root.title("delete File")
+        local_root.geometry("350x400")
+        basic_font =font.Font(size=32) #create font object to change the font size
+
+        lbColour = 'lightgrey'
+        borderColour = 'black'
+        bFrameColour = 'lightgrey'
+
+        #  get files - search through database collect filenames where author = userID
+        dbCon = sqlite3.connect(fileIndexPath)
+        cursor = dbCon.cursor()
+        getUserFiles = f"SELECT filename FROM fileIndex WHERE author={self.username}"
+        cursor.execute(getUserFiles)
+        files = cursor.fetchall()
+        
+        for i in range(len(files)): # format file names
+            file = files[i]
+            file = str(file)
+            file=file.replace('(','')
+            file=file.replace(')','')
+            file=file.replace("'",'')
+            file=file.replace(',','')
+            files[i] = str(file)
+
+        listbox=Listbox(local_root,selectmode='single',width=30,bg=lbColour)
+        listbox['font'] = basic_font # applies the font to the listbox object 
+        for i in range(len(files)): # add files to listbox
+            listbox.insert(i+1,str(files[i]))
+        listbox.place(x=40,y=50)
+
+        instruction_label = Label(local_root,text="select a file",bd=10)
+        instruction_label['font'] = basic_font
+        instruction_label.pack()
+        
+        border = Frame(local_root,width=400,height=5,bg=borderColour)
+        border.place(x=0,y=250)
+
+        button_frame = Frame(local_root,width=330,height=130,bg=bFrameColour)
+        button_frame.place(x=10,y=260)
+
+        submit_button = Button(local_root,text="Delete File",width=41,height=6,command=lambda:self.deleteFilesFunc(listbox))
+        submit_button.place(x=25,y=275)
+
+    def deleteFilesFunc(self,listbox):
+        entry = listbox.curselection()
+        entry = listbox.get(entry)
+        if(len(entry) <= 0):
+            raise ValueError("File not selected")
+            return  
+        if(os.path.exists(fileDataPath+f"\\{entry}.txt")):
+            os.remove(fileDataPath+f"\\{entry}.txt")
+
+            dbCon = sqlite3.connect(fileIndexPath)
+            cursor = dbCon.cursor()
+
+            getfileid = f"SELECT ID FROM fileIndex WHERE fileName='{entry}'"
+            cursor.execute(getfileid)
+            fileID=cursor.fetchall()
+
+            deleteFile = f"DELETE FROM fileIndex WHERE fileName='{entry}'"
+            cursor.execute(deleteFile)
+
+            updateID = F"UPDATE fileIndex SET ID = ID'-1' WHERE ID>'{fileID}'"
+            dbCon.commit()
+            dbCon.close()
+
+
+        else:
+            raise ValueError("File Deosnt Exist")
+            return  
+
+
+
+
 
 # can be used to both encrypt and decrypt 
 def encrypt(key,message): # method to encrypt a message using caeser cipher
@@ -253,7 +401,12 @@ def verifyFiles():
         cursor = dbCon.cursor()
 
         createTable = "CREATE TABLE userDetails (ID INTEGER PRIMARY KEY, username TEXT, password INTEGER, admin INTEGER, dateCreated TEXT)"
+        defaultUser = "INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES ('0','user','90123','1','1/1/1')"
+        cursor.execute(defaultUser)
+        defaultUser = "INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES ('1','user2','90123','1','1/1/1')"
         cursor.execute(createTable)
+        cursor.execute(defaultUser)
+        dbCon.commit()
         dbCon.close()
         print("MAIN : userDetails database not found - creating new userDetails database")
 
@@ -339,3 +492,5 @@ def logginTrigger(usernameObj, passwordObj, activeUsers, root, errorLabel,valueE
     
 if __name__ == "__main__":
     main()
+
+
