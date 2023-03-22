@@ -28,9 +28,15 @@ fileIndexPath = dataPath + "\\fileIndex"
 
 class User: # main class object for a user once they log in
     def __init__(self,userID,username,password):
-        self.ID = userID
-        self.username = username
+        self.IDnO = userID
+        self.ID = username
         self.password = password
+
+        dbcon = sqlite3.connect(userDetailsPath)
+        cursor = dbcon.cursor()
+        cursor.execute(F"SELECT username FROM userDetails WHERE ID='{self.ID}'")
+        username = cursor.fetchone()
+        self.username = username[0]
 
         self.auth() #  checks password against saved password to gain access while keeping all the variables inside the users class
         
@@ -39,7 +45,7 @@ class User: # main class object for a user once they log in
         dbCon = sqlite3.connect(userDetailsPath)
         cursor = dbCon.cursor()
 
-        getpassword = f"SELECT password FROM userDetails where ID = {self.username}"
+        getpassword = f"SELECT password FROM userDetails where ID = {self.ID}"
         try:
             cursor.execute(getpassword)
             if(int(encryptedPassword) == int(cursor.fetchone()[0])): authstat = True
@@ -82,10 +88,10 @@ class User: # main class object for a user once they log in
         delete_file_button = Button(root,width=22,height=4,text="delete files",command=self.deleteFile)#,command=self.delete_files,bg=button_colour)
 
         admin_frame = Frame(root,width=180,height=80,bg=button_frame_background_colour)
-        admin_button = Button(root,width=22,height=4,text="admin")#,command=self.admin_menu,bg=button_colour)
+        admin_button = Button(root,width=22,height=4,text="admin",command=lambda:self.adminMenu(root,main_display_text,main_display_colour),bg=button_colour)
         
         logout_frame = Frame(root,width=180,height=130,bg=logout_frame_background_colour)
-        logout_button = Button(root,width=22,height=7,text="logout")#,command=self.logout,bg=button_colour)
+        logout_button = Button(root,width=22,height=7,text="logout",command=self.logout,bg=button_colour)
        
         sidemenu_border_left = Frame(root,width=5,height=600,bg=border_colour)
         
@@ -210,7 +216,7 @@ class User: # main class object for a user once they log in
         #  get files - search through database collect filenames where author = userID
         dbCon = sqlite3.connect(fileIndexPath)
         cursor = dbCon.cursor()
-        getUserFiles = f"SELECT filename FROM fileIndex WHERE author={self.username}"
+        getUserFiles = f"SELECT filename FROM fileIndex WHERE author='{self.ID}'"
         cursor.execute(getUserFiles)
         files = cursor.fetchall()
         print(files)
@@ -251,7 +257,7 @@ class User: # main class object for a user once they log in
             contentFile.close()
             maintext.destroy()
             maintext = Label(root,width=69,height=38,bg=mainDisplayColour,text=str(contents),anchor=NW,justify=LEFT,wraplength=65)
-            maintext.place()
+            maintext.place(x=218,y=12)
         else:
             raise ValueError("File Deosnt exist")
         
@@ -268,7 +274,7 @@ class User: # main class object for a user once they log in
         #  get files - search through database collect filenames where author = userID
         dbCon = sqlite3.connect(fileIndexPath)
         cursor = dbCon.cursor()
-        getUserFiles = f"SELECT filename FROM fileIndex WHERE author={self.username}"
+        getUserFiles = f"SELECT filename FROM fileIndex WHERE author='{self.ID}'"
         cursor.execute(getUserFiles)
         files = cursor.fetchall()
         
@@ -319,17 +325,260 @@ class User: # main class object for a user once they log in
             deleteFile = f"DELETE FROM fileIndex WHERE fileName='{entry}'"
             cursor.execute(deleteFile)
 
-            updateID = F"UPDATE fileIndex SET ID = ID'-1' WHERE ID>'{fileID}'"
+            #updateID = F"UPDATE fileIndex SET ID = ID'-1' WHERE ID>'{fileID}'"
+            """ this should update the id but i dont have time to sort it out
+            """
             dbCon.commit()
             dbCon.close()
-
-
         else:
             raise ValueError("File Deosnt Exist")
-            return  
+            return
+
+    def logout(self):
+        exit()  
+
+    def editFile(self):
+        pass
+        """this is also very complicated and i ran out of time to make it work
+        """
+
+    def adminMenu(self,mainroot,maindisplay,dColour):
+        dbCon = sqlite3.connect(userDetailsPath)
+        cursor = dbCon.cursor()
+        cursor.execute(f"SELECT admin FROM userDetails WHERE ID='{self.ID}'")
+        adminValue = cursor.fetchone()
+        adminValue = adminValue[0]
+        if(int(adminValue) == 0):
+            local_root = Tk()
+            local_root.title("denied")
+            local_root.geometry("100x50")
+            errorLabel = Label(local_root, text="No Permission",fg='red')
+            errorLabel.place(x=20,y=10)
+            local_root.mainloop()
+            return
+
+        local_root = Tk()
+        local_root.title("admin menu")
+        local_root.geometry("350x200")
+
+        new_user_button = Button(local_root, text='create new user',command= lambda:self.createNewUser(new_user_ID_entry,new_user_username_entry,new_user_password,new_user_permission_level, error_label)) # starts function to create new user - includes all files included in the account
+        new_user_ID_entry = Entry(local_root,width=12)
+        new_user_username_entry = Entry(local_root, width=12)
+        new_user_password = Entry(local_root,width=12)
+        new_user_permission_level = Entry(local_root,width=2)
+
+        new_user_ID_label = Label(local_root,text='userID')
+        new_user_pswd_label = Label(local_root,text='Password')
+        new_user_perm_label = Label(local_root,text='Permission Level')
+        new_user_username_label = Label(local_root, text='Username')
+        error_label = Label(local_root, text='Details Invalid',fg='red')
+        account_created_label = Label(local_root, text='Account Created',fg='green')
 
 
+        new_user_ID_label.place(x=100,y=38)
+        new_user_pswd_label.place(x=100,y=58)
+        new_user_perm_label.place(x=40,y=80)
+        new_user_username_label.place(x=100,y=100)
+        new_user_ID_entry.place(x=20,y=40)
+        new_user_password.place(x=20,y=60)
+        new_user_permission_level.place(x=20,y=80)
+        new_user_username_entry.place(x=20,y=100)
+        new_user_button.place(x=20,y=10)
 
+        delete_user_button = Button(local_root, text='delete user',command=lambda:self.deleteUser()) # delete a user account
+        delete_user_button.place(x=220,y=10)
+
+        ad_read_button = Button(local_root, text='admin view file',command=lambda:self.adminViewFiles(mainroot,maindisplay,dColour)) # view every file within the system not just files linked to the selected account
+        ad_read_button.place(x=20,y=120)
+
+        ad_delete_button = Button(local_root, text='admin delete file',command=lambda:self.adminDeleteFiles()) # delete any file within the system
+        ad_delete_button.place(x=220,y=120)
+
+    def createNewUser(self,userID,username,password,admin,error):
+        #  Get values from the Entry Obj in admin menu 
+        userID = int(userID.get())
+        username = username.get()
+        password = int(encrypt(defaultKey,password.get()))
+        admin = int(admin.get())
+        
+
+        dbCon = sqlite3.connect(userDetailsPath)
+        cursor = dbCon.cursor()
+
+        # check if userID is already taken (linear Search Through list of UserIDs)
+        getIDs = "SELECT ID FROM userDetails"
+        cursor.execute(getIDs)
+        IDList = cursor.fetchall()
+
+        # Check if ID given is unique
+        for i in range(len(IDList)):
+            x=int(IDList[i][0])
+            if(IDList[i][0] == userID):
+                error.place(x=120,y=10)
+                return 
+            
+        newUser = f"INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES('{userID}','{username}','{password}','{admin}',1/1/1)"
+        cursor.execute(newUser)
+        dbCon.commit()
+        dbCon.close()
+
+    def deleteUser(self):
+        local_root = Tk()
+        local_root.title("Delete User")
+        local_root.geometry("350x400")
+        basic_font =font.Font(size=32) #create font object to change the font size
+
+        lbColour = 'lightgrey'
+        borderColour = 'black'
+        bFrameColour = 'lightgrey'
+
+        instruction_label = Label(local_root,text="select a User",bd=10)
+        instruction_label['font'] = basic_font
+        instruction_label.pack()
+
+        dbCon = sqlite3.connect(userDetailsPath)
+        cursor = dbCon.cursor()
+        
+        getUsersID = "SELECT ID FROM userDetails"
+        cursor.execute(getUsersID)
+        usersID = cursor.fetchall()
+        
+        getUsername ="SELECT username FROM userDetails"
+        cursor.execute(getUsername)
+        usernames = cursor.fetchall()
+
+        users = []
+        for i in range(len(usersID)):
+            users.append([usersID[i][0],usernames[i]])
+
+        for i in range(len(users)): # format file names
+            file = users[i][1]
+            file = str(file)
+            file=file.replace('(','')
+            file=file.replace(')','')
+            file=file.replace("'",'')
+            file=file.replace(',','')
+            users[i][1] = str(file)
+
+        listbox=Listbox(local_root,selectmode='single',width=30,bg=lbColour)
+        listbox['font'] = basic_font # applies the font to the listbox object 
+        for i in range(len(users)):
+            listbox.insert(i+1,str(users[i][1]))
+        listbox.place(x=40,y=50)
+
+        border = Frame(local_root,width=400,height=5,bg=borderColour)
+        border.place(x=0,y=250)
+
+        button_frame = Frame(local_root,width=330,height=130,bg=bFrameColour)
+        button_frame.place(x=10,y=260)
+
+        submit_button = Button(local_root,text="Delete File",width=41,height=6,command=lambda:self.deleteUserFunc(listbox,users,local_root))
+        submit_button.place(x=25,y=275)
+
+    def deleteUserFunc(self,entry,users,localRoot):
+        entry = entry.curselection()
+        entry = entry[0]
+        userID = users[entry][0] # gets userID of selected username
+        dbCon = sqlite3.connect(userDetailsPath)
+        cursor = dbCon.cursor()
+
+        deleteUser = f"DELETE FROM userDetails WHERE ID='{userID}'"
+        cursor.execute(deleteUser)
+        dbCon.commit()
+        dbCon.close()
+
+        localRoot.destroy()
+
+    def adminViewFiles(self,root,display,dColour):
+        local_root = Tk()
+        local_root.title("Admin View File")
+        local_root.geometry("350x400")
+        basic_font =font.Font(size=32) #create font object to change the font size
+
+        lbColour = 'lightgrey'
+        borderColour = 'black'
+        bFrameColour = 'lightgrey'
+
+        instruction_label = Label(local_root,text="select a file",bd=10)
+        instruction_label['font'] = basic_font
+        instruction_label.pack()
+        
+        #  get files - search through database collect filenames where author = userID
+        dbCon = sqlite3.connect(fileIndexPath)
+        cursor = dbCon.cursor()
+        getUserFiles = f"SELECT filename FROM fileIndex"
+        cursor.execute(getUserFiles)
+        files = cursor.fetchall()
+        print(files)
+
+        for i in range(len(files)): # format file names
+            file = files[i]
+            file = str(file)
+            file=file.replace('(','')
+            file=file.replace(')','')
+            file=file.replace("'",'')
+            file=file.replace(',','')
+            files[i] = str(file)
+
+        listbox=Listbox(local_root,selectmode='single',width=30,bg=lbColour)
+        listbox['font'] = basic_font # applies the font to the listbox object 
+        for i in range(len(files)): # add files to listbox
+            listbox.insert(i+1,str(files[i]))
+        listbox.place(x=40,y=50)
+
+        border = Frame(local_root,width=400,height=5,bg=borderColour)
+        border.place(x=0,y=250)
+
+        button_frame = Frame(local_root,width=330,height=130,bg=bFrameColour)
+        button_frame.place(x=10,y=260)
+
+        submit_button = Button(local_root,text="View File",width=41,height=6,command=lambda:self.view_file_submited(root,display,listbox,dColour))
+        submit_button.place(x=25,y=275)
+
+    def adminDeleteFiles(self):
+        local_root = Tk()
+        local_root.title("Admin Delete File")
+        local_root.geometry("350x400")
+        basic_font =font.Font(size=32) #create font object to change the font size
+
+        lbColour = 'lightgrey'
+        borderColour = 'black'
+        bFrameColour = 'lightgrey'
+
+        #  get files - search through database collect filenames where author = userID
+        dbCon = sqlite3.connect(fileIndexPath)
+        cursor = dbCon.cursor()
+        getUserFiles = f"SELECT filename FROM fileIndex"
+        cursor.execute(getUserFiles)
+        files = cursor.fetchall()
+        
+        for i in range(len(files)): # format file names
+            file = files[i]
+            file = str(file)
+            file=file.replace('(','')
+            file=file.replace(')','')
+            file=file.replace("'",'')
+            file=file.replace(',','')
+            files[i] = str(file)
+
+        listbox=Listbox(local_root,selectmode='single',width=30,bg=lbColour)
+        listbox['font'] = basic_font # applies the font to the listbox object 
+        for i in range(len(files)): # add files to listbox
+            listbox.insert(i+1,str(files[i]))
+        listbox.place(x=40,y=50)
+
+        instruction_label = Label(local_root,text="select a file",bd=10)
+        instruction_label['font'] = basic_font
+        instruction_label.pack()
+        
+        border = Frame(local_root,width=400,height=5,bg=borderColour)
+        border.place(x=0,y=250)
+
+        button_frame = Frame(local_root,width=330,height=130,bg=bFrameColour)
+        button_frame.place(x=10,y=260)
+
+        submit_button = Button(local_root,text="Delete File",width=41,height=6,command=lambda:self.deleteFilesFunc(listbox))
+        submit_button.place(x=25,y=275)
 
 
 # can be used to both encrypt and decrypt 
@@ -404,7 +653,7 @@ def verifyFiles():
         cursor.execute(createTable)
         defaultUser = "INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES ('0','user','90123','1','1/1/1')"
         cursor.execute(defaultUser)
-        defaultUser = "INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES ('1','user2','90123','1','1/1/1')"
+        defaultUser = "INSERT INTO userDetails (ID, username, password, admin, dateCreated) VALUES ('1','user2','90123','0','1/1/1')"
         cursor.execute(defaultUser)
         dbCon.commit()
         dbCon.close()
